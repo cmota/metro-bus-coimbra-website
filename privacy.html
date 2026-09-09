@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400..900&display=swap">
+<title>MetroBus Coimbra · Privacy</title>
+<meta name="description" content="Privacy policy of the MetroBus Coimbra app: no account, no tracking, everything stays on your phone.">
+<meta name="robots" content="index,follow">
+<style>
+/* ------------------------------------------------------------------ tokens */
+
+:root{
+  /* Coimbra palette, light: purple leads, neutrals seeded by it (Color.kt coimbra_light_*) */
+  --bg:#FCF9FC; --on:#211A28; --on-var:#5C5265;
+  --outline:#7B6F84; --outline-v:#CAC0D0;
+  --s-lowest:#FFFFFF; --s-low:#F7F2F8; --s-c:#F0EAF2; --s-high:#EAE2ED; --s-highest:#E2D9E6;
+  --primary:#583887; --on-primary:#FFFFFF; --primary-c:#EADDF7; --on-primary-c:#2A1450;
+  --select:#EBDFF2; --on-select:#2E223C;
+  /* line identity, read from the station signage: Urban yellow, Suburban blue */
+  --urban:#E7B953; --on-urban:#000000; --urban-ink:#745900; --urban-tint:rgba(231,185,83,.22); --u-edge:rgba(0,0,0,.18);
+  --suburban:#2F70BD; --suburban-ink:#2F70BD; --green:#1F8A4C;
+  --frame:#E2D9E6; --frame-edge:#CAC0D0;
+  /* the departure board: paper in light (PaperBoard), ink in dark (DarkBoard) */
+  --ink:#FFFFFF; --ink-raised:#F6F0FA; --ink-text:#1D1B20; --ink-muted:#5D5866;
+  --ink-hair:rgba(0,0,0,0.12); --signal:#B3261E;
+  --ink-border:#CAC0D0;
+  --board-shadow:0 1px 2px rgba(33,26,40,.05), 0 12px 32px rgba(33,26,40,.08);
+  --card:#FFFFFF;
+  --shadow:0 1px 2px rgba(33,26,40,.06), 0 8px 28px rgba(33,26,40,.07);
+  --show-light:block; --show-dark:none;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#101216; --on:#E9EAEE; --on-var:#A0A4AF;
+    --outline:#767A85; --outline-v:#2A2D35;
+    --s-lowest:#0B0C0F; --s-low:#16181D; --s-c:#1B1E24; --s-high:#22252C; --s-highest:#2A2D35;
+    --primary:#E9BC27; --on-primary:#2E2300; --primary-c:#3F2A66; --on-primary-c:#F7E7A6;
+    --select:#4A2F78; --on-select:#F0E6FF;
+    --urban:#E7B953; --on-urban:#000000; --urban-ink:#E7B953; --urban-tint:rgba(231,185,83,.16); --u-edge:transparent;
+    --suburban:#2F70BD; --suburban-ink:#7CB0F2; --green:#4CC38A;
+    --frame:#2A2D35; --frame-edge:#474B55;
+    --ink:#15171C; --ink-raised:#1C1F26; --ink-text:#F5F6F8; --ink-muted:#9BA1AD;
+    --ink-hair:rgba(255,255,255,0.14); --signal:#FF5468;
+    --ink-border:rgba(255,255,255,0.14);
+    --board-shadow:0 18px 44px rgba(0,0,0,.45);
+    --card:#16181D;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 8px 28px rgba(0,0,0,.45);
+    --show-light:none; --show-dark:block;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#101216; --on:#E9EAEE; --on-var:#A0A4AF;
+  --outline:#767A85; --outline-v:#2A2D35;
+  --s-lowest:#0B0C0F; --s-low:#16181D; --s-c:#1B1E24; --s-high:#22252C; --s-highest:#2A2D35;
+  --primary:#E9BC27; --on-primary:#2E2300; --primary-c:#3F2A66; --on-primary-c:#F7E7A6;
+  --select:#4A2F78; --on-select:#F0E6FF;
+  --urban:#E7B953; --on-urban:#000000; --urban-ink:#E7B953; --urban-tint:rgba(231,185,83,.16); --u-edge:transparent;
+  --suburban:#2F70BD; --suburban-ink:#7CB0F2; --green:#4CC38A;
+  --frame:#2A2D35; --frame-edge:#474B55;
+  --ink:#15171C; --ink-raised:#1C1F26; --ink-text:#F5F6F8; --ink-muted:#9BA1AD;
+  --ink-hair:rgba(255,255,255,0.14); --signal:#FF5468;
+  --ink-border:rgba(255,255,255,0.14);
+  --board-shadow:0 18px 44px rgba(0,0,0,.45);
+  --card:#16181D;
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 8px 28px rgba(0,0,0,.45);
+  --show-light:none; --show-dark:block;
+}
+
+/* ------------------------------------------------------------------- base */
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--on);
+  font-family:"Roboto Flex",Roboto,"Helvetica Neue",Arial,system-ui,sans-serif;
+  font-variant-numeric:tabular-nums; -webkit-font-smoothing:antialiased;
+  line-height:1.5;
+}
+svg{display:block;flex:none}
+a{color:var(--primary);text-decoration:none}
+a:hover{text-decoration:underline}
+h1,h2,h3,p,ul,ol{margin:0}
+h1,h2{text-wrap:balance}
+ul{padding:0;list-style:none}
+:focus-visible{outline:3px solid var(--primary);outline-offset:3px;border-radius:8px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+.eyebrow{font-size:11px;line-height:14px;font-weight:600;letter-spacing:1.1px;text-transform:uppercase;color:var(--on-var)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ----------------------------------------------------------------- header */
+header{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid var(--outline-v)}
+.bar{display:flex;align-items:center;gap:16px;height:64px}
+.mark{display:flex;align-items:center;gap:10px;color:var(--on);font-weight:700;font-size:16px;letter-spacing:-.2px}
+.mark:hover{text-decoration:none}
+.mark .glyph{width:36px;height:36px;border-radius:12px;background:#583887;color:#fff;
+  display:flex;align-items:center;justify-content:center;flex:none}
+.bar nav{display:none;margin-left:auto;gap:4px}
+.bar nav a{padding:8px 12px;border-radius:20px;color:var(--on-var);font-size:14px;font-weight:500}
+.bar nav a:hover{background:var(--s-high);color:var(--on);text-decoration:none}
+.bar .right{display:flex;align-items:center;gap:8px;margin-left:auto}
+.bar nav+.right{margin-left:0}
+.lang{display:flex;height:36px;border:1px solid var(--outline);border-radius:18px;overflow:hidden}
+.lang button{appearance:none;border:0;background:transparent;color:var(--on);cursor:pointer;
+  font:500 13px/1 inherit;padding:0 14px;font-family:inherit;letter-spacing:.3px}
+.lang button+button{border-left:1px solid var(--outline)}
+.lang button[aria-pressed="true"]{background:var(--primary-c);color:var(--on-primary-c)}
+.icon-link{width:40px;height:40px;border-radius:20px;display:flex;align-items:center;justify-content:center;color:var(--on)}
+.icon-link:hover{background:var(--s-high)}
+
+/* ------------------------------------------------------------------- hero */
+.hero{padding:44px 0 8px}
+.hero-grid{display:grid;gap:36px}
+.tagchip{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 14px;border-radius:8px;
+  border:1px solid var(--outline);font-size:13px;font-weight:500;color:var(--on)}
+h1{font-size:38px;line-height:44px;font-weight:800;letter-spacing:-1px;margin:18px 0 0}
+.lede{font-size:17px;line-height:27px;color:var(--on-var);margin-top:16px;max-width:34em}
+.facts{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:22px}
+.facts li{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--on-var)}
+.facts svg{color:var(--green)}
+
+/* store badge placeholders */
+.badges{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+.badge{display:flex;align-items:center;gap:12px;height:58px;padding:0 20px;border-radius:16px;
+  background:var(--s-high);border:1px dashed var(--outline);color:var(--on);min-width:220px}
+.badge b{display:block;font-size:15px;font-weight:700;letter-spacing:-.2px}
+.badge span{display:block;font-size:11px;line-height:14px;color:var(--on-var);font-weight:500}
+.ph{color:var(--primary);font-weight:600}
+
+/* -------------------------------------------------------------- the board */
+.boards{display:grid;gap:12px}
+.board{background:var(--ink);border:1px solid var(--ink-border);border-radius:28px;padding:20px 22px 18px;color:var(--ink-text);
+  font-variant-numeric:tabular-nums;box-shadow:var(--board-shadow)}
+.board-cap{margin-top:12px;font-size:12px;line-height:16px;color:var(--on-var);text-align:center}
+.bd-head{display:flex;align-items:center;gap:10px;font-size:15px;line-height:20px;font-weight:500}
+.bd-head .bd-dest{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bd-head .bd-time{color:var(--ink-muted)}
+.bd-label{display:flex;align-items:center;gap:12px;margin-top:16px;font-size:11px;line-height:14px;font-weight:600;letter-spacing:1.1px;text-transform:uppercase;color:var(--ink-muted)}
+.bd-signal{color:var(--signal)}
+.bd-num{font-size:64px;line-height:68px;font-weight:800;letter-spacing:-2px;margin-top:2px}
+.bd-follow{margin-top:14px;padding-top:12px;border-top:1px solid var(--ink-hair);display:grid;gap:8px}
+.bd-follow .bd-label{margin-top:0}
+.bd-frow{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:15px;line-height:20px}
+.bd-frow b{font-weight:700}
+.bd-frow .r{display:flex;align-items:center;gap:8px;color:var(--ink-muted);font-size:14px}
+.tag{padding:2px 8px;border-radius:8px;color:#fff;font-size:14px;line-height:20px;font-weight:700;white-space:nowrap}
+.tag.sm{padding:1px 6px;border-radius:6px;font-size:11px;line-height:16px}
+.tag.u{background:var(--urban);color:var(--on-urban);box-shadow:inset 0 0 0 1px var(--u-edge)}
+.tag.s{background:var(--suburban)}
+
+/* ------------------------------------------------------------ trust strip */
+.strip{margin-top:44px;border-top:1px solid var(--outline-v);border-bottom:1px solid var(--outline-v);padding:24px 0}
+.strip ul{display:grid;gap:18px;grid-template-columns:1fr}
+.strip li{display:flex;gap:12px;align-items:flex-start}
+.strip .ico{color:var(--primary);flex:none;margin-top:1px}
+.strip b{display:block;font-size:14px;font-weight:600}
+.strip span{display:block;font-size:13px;line-height:19px;color:var(--on-var);margin-top:2px}
+
+/* --------------------------------------------------------------- sections */
+section{padding:64px 0}
+.sec-head{max-width:44em}
+h2{font-size:30px;line-height:38px;font-weight:800;letter-spacing:-.6px;margin-top:10px}
+.sec-head p{font-size:16px;line-height:26px;color:var(--on-var);margin-top:12px}
+
+/* ---------------------------------------------------------------- gallery */
+.shots{--s:.58;margin-top:32px;display:flex;gap:22px;overflow-x:auto;padding:6px max(20px,calc((100% - 1120px) / 2 + 20px)) 26px;
+  scroll-snap-type:x mandatory;scrollbar-width:thin}
+.shot{scroll-snap-align:center;flex:none;width:calc(390px * var(--s) + 20px);display:flex;flex-direction:column;gap:14px}
+.frame{width:calc(390px * var(--s) + 20px);height:calc(867px * var(--s) + 20px);
+  padding:10px;border-radius:calc(36px * var(--s) + 10px);background:var(--frame);
+  border:1px solid var(--frame-edge);box-shadow:var(--shadow);flex:none}
+.screen{width:calc(390px * var(--s));height:calc(867px * var(--s));
+  border-radius:calc(28px * var(--s));overflow:hidden;background:var(--bg);position:relative}
+.screen img{display:block;width:100%;height:100%}
+.screen .lt{display:var(--show-light)}
+.screen .dk{display:var(--show-dark)}
+.shot h3{font-size:16px;line-height:22px;font-weight:700;letter-spacing:-.2px}
+.shot p{font-size:13px;line-height:19px;color:var(--on-var);margin-top:4px}
+.hint{margin-top:2px;padding-left:max(20px,calc((100% - 1120px) / 2 + 20px));padding-right:20px;font-size:12px;color:var(--on-var);display:flex;align-items:center;gap:8px}
+
+/* --------------------------------------------------------------- features */
+.cards{display:grid;gap:14px;margin-top:32px;grid-template-columns:1fr}
+.card{background:var(--card);border:1px solid var(--outline-v);border-radius:24px;padding:24px}
+.card .ico{width:44px;height:44px;border-radius:14px;background:var(--primary-c);color:var(--on-primary-c);
+  display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.card h3{font-size:17px;line-height:24px;font-weight:700;letter-spacing:-.2px}
+.card p{font-size:14px;line-height:22px;color:var(--on-var);margin-top:8px}
+
+/* ---------------------------------------------------------------- honesty */
+.honesty{background:var(--ink);border:1px solid var(--ink-border);color:var(--ink-text);border-radius:32px;padding:36px 24px;box-shadow:var(--board-shadow)}
+.honesty .eyebrow{color:var(--signal)}
+.honesty h2{color:var(--ink-text);margin-top:10px}
+.honesty > p{color:var(--ink-muted);font-size:16px;line-height:26px;margin-top:14px;max-width:44em}
+.two{display:grid;gap:20px;margin-top:30px}
+.panel{background:var(--ink-raised);border-radius:20px;padding:22px;border:1px solid var(--ink-hair)}
+.panel h3{font-size:11px;line-height:14px;font-weight:600;letter-spacing:1.1px;text-transform:uppercase;color:var(--ink-muted)}
+.panel li{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:22px;color:var(--ink-text);margin-top:14px}
+.panel li svg{margin-top:3px;flex:none}
+.panel.yes li svg{color:var(--green)}
+.panel.no li svg{color:var(--signal)}
+
+/* ---------------------------------------------------------------- network */
+.lines{display:grid;gap:16px;margin-top:32px;align-items:start}
+.line-card{border:1px solid var(--outline-v);border-radius:24px;padding:24px;background:var(--card)}
+.swatch{width:20px;height:6px;border-radius:3px;flex:none}
+.line-card .top{display:flex;align-items:center;gap:10px}
+.line-card h3{font-size:20px;line-height:28px;font-weight:700;letter-spacing:-.3px}
+.line-card .sub{font-size:13px;line-height:19px;color:var(--on-var);margin-top:6px}
+.stops{display:flex;flex-wrap:wrap;gap:6px;margin-top:18px}
+.stop{font-size:12px;line-height:16px;font-weight:500;padding:5px 10px;border-radius:8px;background:var(--s-c);color:var(--on)}
+.stop.u{background:var(--urban-tint);color:var(--urban-ink)}
+.zone{flex-basis:100%;font-size:11px;line-height:14px;font-weight:600;letter-spacing:1.1px;text-transform:uppercase;color:var(--on-var);margin-top:6px}
+.stops .zone:first-child{margin-top:0}
+.note{margin-top:20px;background:var(--s-c);border-radius:16px;padding:18px 20px;font-size:14px;line-height:22px;color:var(--on-var)}
+
+/* ------------------------------------------------------------ independent */
+.indie{display:grid;gap:28px;align-items:start}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.chip{display:inline-flex;align-items:center;height:32px;padding:0 14px;border-radius:8px;
+  border:1px solid var(--outline);font-size:13px;font-weight:500;color:var(--on)}
+.btnrow{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.btn{display:inline-flex;align-items:center;gap:8px;height:48px;padding:0 24px;border-radius:24px;
+  font-size:15px;font-weight:600;background:var(--primary);color:var(--on-primary)}
+.btn:hover{text-decoration:none;filter:brightness(1.08)}
+.btn.ghost{background:transparent;border:1px solid var(--outline);color:var(--on)}
+.btn.ghost:hover{background:var(--s-high);filter:none}
+
+/* -------------------------------------------------------------- get / cta */
+.get{background:var(--s-c);border-radius:32px;padding:40px 24px;text-align:center}
+.get h2{margin-top:10px}
+.get p{font-size:16px;line-height:26px;color:var(--on-var);margin:12px auto 0;max-width:36em}
+.get .badges{justify-content:center}
+.pending{margin-top:22px;font-size:13px;line-height:20px;color:var(--on-var)}
+
+/* ----------------------------------------------------------------- footer */
+footer{border-top:1px solid var(--outline-v);padding:48px 0 56px;margin-top:24px}
+.fgrid{display:grid;gap:32px}
+.fcol h3{font-size:11px;line-height:14px;font-weight:600;letter-spacing:1.1px;text-transform:uppercase;color:var(--on-var)}
+.fcol li{margin-top:12px}
+.fcol a,.fcol span{font-size:14px;line-height:20px}
+.fcol span{color:var(--on-var)}
+.fcol a{display:inline-flex;align-items:center;gap:8px;color:var(--on)}
+.fcol a:hover{color:var(--primary)}
+.legal{margin-top:40px;padding-top:24px;border-top:1px solid var(--outline-v);
+  font-size:13px;line-height:21px;color:var(--on-var);max-width:56em}
+.legal p+p{margin-top:10px}
+
+/* ------------------------------------------------------------ breakpoints */
+@media (min-width:700px){
+  .shots{--s:.66}
+  .hero{padding:64px 0 8px}
+  h1{font-size:52px;line-height:58px;letter-spacing:-1.6px}
+  h2{font-size:36px;line-height:44px}
+  .strip ul{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .two{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .lines{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .fgrid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .honesty,.get{padding:48px 40px}
+}
+@media (min-width:980px){
+  .bar nav{display:flex}
+  .hero-grid{grid-template-columns:1.05fr .95fr;align-items:center;gap:56px}
+  .strip ul{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .cards{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .indie{grid-template-columns:1.1fr .9fr;gap:56px}
+}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+<style>
+.policy{max-width:760px;margin:0 auto;padding:40px 20px 64px}
+.policy h1{font-size:clamp(30px,4vw,40px);line-height:1.1;letter-spacing:-.6px;margin:8px 0 12px}
+.policy h2{font-size:20px;margin:34px 0 10px}
+.policy p,.policy li{font-size:16px;line-height:1.65;color:var(--on)}
+.policy p+p{margin-top:12px}
+.policy ul{list-style:disc;padding-left:22px;margin:8px 0}
+.policy li+li{margin-top:6px}
+.policy .lede{color:var(--on-var)}
+.policy .note{color:var(--on-var);font-size:14px;margin-top:28px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="mark" href="index.html">
+      <span class="glyph"><svg width="27" height="27" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12,2c-4.42,0 -8,0.5 -8,4v10c0,0.88 0.39,1.67 1,2.22V20c0,0.55 0.45,1 1,1h1c0.55,0 1,-0.45 1,-1v-1h8v1c0,0.55 0.45,1 1,1h1c0.55,0 1,-0.45 1,-1v-1.78c0.61,-0.55 1,-1.34 1,-2.22V6c0,-3.5 -3.58,-4 -8,-4zM7.5,17c-0.83,0 -1.5,-0.67 -1.5,-1.5S6.67,14 7.5,14s1.5,0.67 1.5,1.5S8.33,17 7.5,17zM16.5,17c-0.83,0 -1.5,-0.67 -1.5,-1.5s0.67,-1.5 1.5,-1.5 1.5,0.67 1.5,1.5 -0.67,1.5 -1.5,1.5zM18,11H6V6h12v5z"></path></svg></span>
+      MetroBus <span style="font-weight:400;color:var(--on-var)">Coimbra</span>
+    </a>
+    <nav aria-label="Sections">
+      <a href="index.html" data-pt="Voltar ao site">Back to the site</a>
+    </nav>
+    <div class="right">
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" data-lang="en" aria-pressed="true">EN</button>
+        <button type="button" data-lang="pt" aria-pressed="false">PT</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="policy">
+  <span class="eyebrow" data-pt="Privacidade">Privacy</span>
+  <h1 data-pt="Política de privacidade">Privacy policy</h1>
+  <p class="lede" data-pt="Como a app MetroBus Coimbra para Android e iOS trata os seus dados. A versão curta: não recolhe nenhuns.">How the MetroBus Coimbra app for Android and iOS treats your data. The short version: it does not collect any.</p>
+  <h2 data-pt="Em resumo">In short</h2><p data-pt="O MetroBus Coimbra não tem conta, não tem registo e não faz rastreio. Não recolhe dados pessoais, não mostra publicidade e não envia nada sobre si para lado nenhum. Tudo o que a app guarda fica no seu telemóvel.">MetroBus Coimbra has no account, no sign-up and no tracking. It does not collect personal data, does not show adverts and does not send anything about you anywhere. Everything the app remembers stays on your phone.</p><h2 data-pt="O que a app guarda no telemóvel">What the app keeps on your phone</h2><p data-pt="Para a app abrir onde a deixou, guarda algumas definições no armazenamento privado da própria app, no dispositivo:">So the app opens where you left it, it stores a few settings in its own private storage on the device:</p><ul><li data-pt="a estação escolhida e as estações favoritas;">your chosen station and your favourite stations;</li><li data-pt="viagens guardadas no planeador, com as duas estações e o nome que lhes der;">trips you save in the planner, with the two stations and a name you give them;</li><li data-pt="a aparência escolhida (sistema, claro ou escuro) e se já viu a introdução;">your appearance choice (system, light or dark) and whether you have seen the introduction;</li><li data-pt="uma cópia do horário público e dos avisos de serviço do operador, para a app funcionar sem ligação.">a copy of the public timetable and of the operator's service notices, so the app works without a connection.</li></ul><p data-pt="O widget no Android e o widget e a Live Activity no iOS leem estes mesmos dados, no dispositivo. Nada disto está associado a si como pessoa, e tudo é apagado quando desinstala a app ou limpa o seu armazenamento nas definições do sistema.">The home-screen widget on Android and the widget and Live Activity on iOS read this same on-device data. None of it is linked to you as a person, and all of it is deleted when you uninstall the app or clear its storage in the system settings.</p><h2 data-pt="Localização">Location</h2><p data-pt="Se o permitir, a app usa a sua localização enquanto está aberta para encontrar a estação mais próxima e estimar o tempo a pé até lá. A posição é processada no telemóvel e nunca é guardada, registada nem enviada para um servidor. A permissão é opcional: sem ela escolhe simplesmente uma estação, e pode retirá-la a qualquer momento nas definições do sistema.">If you allow it, the app uses your location while it is open to find the nearest station and estimate your walk to it. The position is processed on the phone and is never stored, logged or sent to a server. The permission is optional: without it you simply choose a station yourself, and you can withdraw it at any time in the system settings.</p><h2 data-pt="Ligações à rede">Network connections</h2><p data-pt="A app liga-se à internet para uma coisa: descarregar o horário público (schedule.json) e os avisos de serviço do operador (alerts.json) a partir do servidor do próprio projeto, por HTTPS. Antes de voltar a descarregar, pergunta se os ficheiros mudaram, por isso a maioria das verificações não transfere nada. O mapa que mostra a rede vem dentro da app; não são descarregados mosaicos de mapa.">The app connects to the internet for one thing: to download the public timetable (schedule.json) and the operator's service notices (alerts.json) from the project's own server, over HTTPS. It asks whether the files changed before downloading them again, so most checks transfer nothing. The map that shows the network ships inside the app; no map tiles are downloaded.</p><p data-pt="Como em qualquer descarga, o servidor vê o endereço de internet (IP) do dispositivo que faz o pedido. Não é enviada nenhuma conta, identificador, localização ou qualquer outra coisa sobre si, e esse endereço não é usado para o identificar.">As with any download, the server sees the internet address (IP) of the device making the request. No account, identifier, location or anything else about you is sent with it, and it is not used to identify you.</p><h2 data-pt="Lembretes e notificações">Reminders and notifications</h2><p data-pt="Quando pede um lembrete de partida, a app agenda uma notificação no seu telemóvel através do serviço de notificações do próprio sistema. No Android 13 e posterior pede primeiro autorização para mostrar notificações. No iOS a partida pode também aparecer como Live Activity no ecrã bloqueado. Os lembretes são criados e entregues inteiramente no dispositivo.">When you ask for a departure reminder, the app schedules a notification on your phone using the system's own notification service. On Android 13 and later it asks for permission to show notifications first. On iOS the departure can also appear as a Live Activity on the lock screen. Reminders are created and delivered entirely on the device.</p><h2 data-pt="Sem publicidade, sem analítica, sem terceiros">No adverts, no analytics, no third parties</h2><ul><li data-pt="Não há SDKs de publicidade nem anúncios.">There are no advertising SDKs and no adverts.</li><li data-pt="Não há bibliotecas de analítica ou rastreio, e não são recolhidos dados de utilização.">There are no analytics or tracking libraries, and no usage data is collected.</li><li data-pt="Nenhum dado é vendido, alugado ou partilhado com ninguém.">No data is sold, rented or shared with anyone.</li><li data-pt="Se a app falhar, a Apple e a Google podem disponibilizar ao programador estatísticas anónimas de falhas através da App Store e do Google Play, segundo as suas próprias políticas e apenas se o tiver permitido no seu dispositivo.">If the app crashes, Apple and Google may provide the developer with anonymous crash statistics through the App Store and Google Play, under their own policies and only if you have allowed that on your device.</li></ul><h2 data-pt="Ligações que saem da app">Links that leave the app</h2><p data-pt="O ecrã Info tem ligações para os sites oficiais da Metro Mondego e dos SMTUC e para a linha de apoio telefónica do operador, e o mapa credita o OpenStreetMap. Seguir qualquer uma delas abre o seu navegador ou a app de telefone e sai do MetroBus Coimbra; esses serviços têm as suas próprias políticas de privacidade.">The Info screen links to the official Metro Mondego and SMTUC websites and to the operator's support telephone line, and the map credits OpenStreetMap. Following any of these opens your browser or phone app and leaves MetroBus Coimbra; those services have their own privacy policies.</p><h2 data-pt="O seu controlo">Your control</h2><p data-pt="Como não há contas nem recolha de dados, não existe nenhum perfil seu para pedir, corrigir ou apagar. Para remover tudo o que a app sabe, desinstale-a ou limpe o seu armazenamento nas definições do sistema. As permissões de localização e de notificações podem ser retiradas a qualquer momento no mesmo sítio.">Because there are no accounts and no data is collected, there is no profile of you to request, correct or delete. To remove everything the app knows, uninstall it or clear its storage in the system settings. Location and notification permissions can be withdrawn at any time in the same place.</p><h2 data-pt="Sobre esta política">About this policy</h2><p data-pt="O MetroBus Coimbra é desenvolvido e publicado por Carlos Mota, programador independente. Não é uma app oficial da Metro Mondego e não tem ligação ao operador. Se a app alguma vez passar a tratar dados de forma diferente, esta página será atualizada e a data abaixo mudará.">MetroBus Coimbra is developed and published by Carlos Mota, an independent developer. It is not an official Metro Mondego app and is not affiliated with the operator. If the app ever starts handling data differently, this page will be updated and the date below will change.</p><p><span data-pt="Dúvidas sobre esta política: ">Questions about this policy: </span><a href="mailto:cafonsomota@gmail.com">cafonsomota@gmail.com</a></p><p class="note" data-pt="Última atualização: 8 de setembro de 2026.">Last updated: 8 September 2026.</p>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="legal">
+      <p data-pt="MetroBus Coimbra é uma aplicação independente. Não é uma app oficial e não é afiliada, patrocinada nem aprovada pela Metro Mondego, pelo Sistema de Mobilidade do Mondego ou pelos SMTUC. Os nomes das linhas e das estações são usados para identificar o serviço da Metro Mondego.">MetroBus Coimbra is an independent application. It is not an official app and is not affiliated with, sponsored or endorsed by Metro Mondego, Sistema de Mobilidade do Mondego or SMTUC. Line and station names are used to identify the Metro Mondego service.</p>
+      <p data-pt="Os horários vêm dos dados abertos publicados pelo operador e são apresentados como estimativa. Confirme sempre a informação oficial antes de viajar.">Timetables come from open data published by the operator and are presented as estimates. Always check official information before travelling.</p>
+    </div>
+  </div>
+
+  </div>
+</footer>
+
+<script>
+(function(){
+  var buttons = document.querySelectorAll('.lang button');
+  var nodes = document.querySelectorAll('[data-pt]');
+  function apply(lang){
+    for (var i = 0; i < nodes.length; i++){
+      var el = nodes[i];
+      if (el.dataset.en === undefined) el.dataset.en = el.innerHTML;
+      el.innerHTML = (lang === 'pt') ? el.dataset.pt : el.dataset.en;
+    }
+    document.documentElement.lang = lang;
+    for (var j = 0; j < buttons.length; j++){
+      buttons[j].setAttribute('aria-pressed', String(buttons[j].dataset.lang === lang));
+    }
+    try { localStorage.setItem('mb-lang', lang); } catch (e) {}
+  }
+  for (var k = 0; k < buttons.length; k++){
+    buttons[k].addEventListener('click', function(){ apply(this.dataset.lang); });
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('mb-lang'); } catch (e) {}
+  if (!saved && (navigator.language || '').toLowerCase().indexOf('pt') === 0) saved = 'pt';
+  if (saved === 'pt') apply('pt');
+})();
+</script>
+</body>
+</html>
