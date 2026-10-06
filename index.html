@@ -801,6 +801,7 @@ var MB = (function () {
 
   /** Next journeys from [o] to [d]: direct, or one change where it gets in sooner (the app's rules). */
   function plan(net, o, d, now, count) {
+    if (o === d) return []; // no journey from a station to itself, as the app
     var service = now.min < CUTOFF ? now.day - 86400000 : now.day;
     var nowMin = now.min < CUTOFF ? now.min + 1440 : now.min;
     var days = daysFrom(net, service);
