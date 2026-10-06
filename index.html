@@ -692,13 +692,44 @@ var MB = (function () {
     return w === 6 ? 'saturday' : w === 0 ? 'sunday' : 'weekday';
   }
 
-  /** Lisbon wall clock as {day: UTC midnight of the calendar date, min: minute of day}. */
-  function lisbonNow(date) {
+  var LISBON = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Lisbon', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+
+  /** Lisbon wall clock at the moment [ms] as {day: UTC midnight of the calendar date, min: minute of day}. */
+  function wall(ms) {
     var p = {};
-    new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Lisbon', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
-      .formatToParts(date || new Date()).forEach(function (x) { p[x.type] = x.value; });
+    LISBON.formatToParts(ms).forEach(function (x) { p[x.type] = x.value; });
     return { day: Date.UTC(+p.year, +p.month - 1, +p.day), min: +p.hour * 60 + +p.minute };
   }
+
+  /** The moment Lisbon's clock reads 04:00 on [day]; Lisbon is UTC or UTC+1, and never changes near 04:00. */
+  function serviceStart(day) {
+    var local = day + CUTOFF * 60000;
+    return wall(local - 3600000).min === CUTOFF ? local - 3600000 : local;
+  }
+
+  /** The moment the timetable time [m] comes, in minutes from [serviceDay]'s midnight as boards and plans give it. */
+  function instantOf(serviceDay, m) {
+    var k = Math.floor((m - CUTOFF) / 1440);
+    return serviceStart(serviceDay + k * 86400000) + (m - CUTOFF - k * 1440) * 60000;
+  }
+
+  /**
+   * Timetable time, as the app's AppClock: counted on from the service day's 04:00 the way a bus runs,
+   * so in October's repeated hour it reads 02:xx (nothing runs, no bus that has left comes back) and
+   * March's 01:xx is not skipped. {day, min} as the wall clock's, plus [at], the moment, for countdowns.
+   */
+  function lisbonNow(date) {
+    var at = +(date || new Date()), w = wall(at), service = w.min < CUTOFF ? w.day - 86400000 : w.day;
+    // October's service day lasts 25 hours and the timetable's 24: its last hour reads as its last minute.
+    var m = Math.min(CUTOFF + Math.floor((at - serviceStart(service)) / 60000), CUTOFF + 1439);
+    return { day: service + Math.floor(m / 1440) * 86400000, min: m % 1440, at: at };
+  }
+
+  /** What the clock reads when the timetable time [m] comes: the same, but for March's 01:xx, which is 02:xx. */
+  function shown(serviceDay, m) { return hhmm(wall(instantOf(serviceDay, m)).min); }
+
+  /** Whole minutes from the start of [now]'s minute until [m]: what a countdown reads, real minutes across a change. */
+  function minutesUntil(serviceDay, m, now) { return Math.round((instantOf(serviceDay, m) - (now.at - now.at % 60000)) / 60000); }
 
   /** The timetable reshaped once: trips with service minutes, closed stops dropped (as the app does). */
   function prepare(doc) {
@@ -794,7 +825,7 @@ var MB = (function () {
         }
       });
       deps.sort(function (a, b) { return a.min - b.min || (a.line < b.line ? -1 : a.line > b.line ? 1 : 0); });
-      return { centre: centre, termini: termini, deps: deps.slice(0, 3), nowMin: nowMin, serviceDay: service };
+      return { centre: centre, termini: termini, deps: deps.slice(0, 3), serviceDay: service };
     });
     return groups.filter(function (g) { return g.termini.length; });
   }
@@ -841,10 +872,10 @@ var MB = (function () {
     changes.forEach(function (c) { if (c.arr < soonest) { soonest = c.arr; kept.push(c); } });
     kept = kept.filter(function (c) { return !directs.some(function (x) { return x.dep >= c.dep && x.arr <= c.arr; }); });
     return directs.concat(kept).sort(function (a, b) { return a.dep - b.dep || a.arr - b.arr; }).slice(0, count || 3)
-      .map(function (p) { p.nowMin = nowMin; p.serviceDay = service; return p; });
+      .map(function (p) { p.serviceDay = service; return p; });
   }
 
-  return { prepare: prepare, boards: boards, plan: plan, lisbonNow: lisbonNow, hhmm: hhmm, dayKey: dayKey, CUTOFF: CUTOFF };
+  return { prepare: prepare, boards: boards, plan: plan, lisbonNow: lisbonNow, shown: shown, minutesUntil: minutesUntil, dayKey: dayKey, CUTOFF: CUTOFF };
 })();
 
 /* ---- The page: pickers above the hero boards, filled from the live timetable. */
@@ -880,8 +911,8 @@ var MB = (function () {
   function calDay(g, m) { return g.serviceDay + Math.floor(m / 1440) * 86400000; }
   function isTomorrow(g, m, now) { return calDay(g, m) > now.day && m % 1440 >= MB.CUTOFF; }
   function wait(g, m, now) {
-    var d = m - g.nowMin;
-    return d < 60 ? Math.max(0, d) + ' ' + T[lang()].min : MB.hhmm(m) + (isTomorrow(g, m, now) ? ' · ' + T[lang()].tomorrow.toLowerCase() : '');
+    var d = MB.minutesUntil(g.serviceDay, m, now);
+    return d < 60 ? Math.max(0, d) + ' ' + T[lang()].min : MB.shown(g.serviceDay, m) + (isTomorrow(g, m, now) ? ' · ' + T[lang()].tomorrow.toLowerCase() : '');
   }
   // The caption also carries data-pt, which the page's language toggle rewrites from data-en /
   // data-pt; both are kept current so a toggle never brings the example's caption back.
@@ -915,7 +946,7 @@ var MB = (function () {
     status.textContent = T[lang()].fail;
   }
   function draw(force, announce) {
-    var now = MB.lisbonNow(), key = from.value + '|' + to.value + '|' + now.day + '|' + now.min + '|' + lang();
+    var now = MB.lisbonNow(), key = from.value + '|' + to.value + '|' + Math.floor(now.at / 60000) + '|' + lang();
     if (!force && key === lastKey) return;
     lastKey = key;
     var t = T[lang()], o = from.value, d = to.value, said = '';
@@ -925,12 +956,12 @@ var MB = (function () {
         var tomorrow = isTomorrow(p, p.dep, now);
         var meta = p.legs.map(function (l) { return tag(l.line, true); }).join(' ') + ' ' +
           esc(p.hub ? fill(t.change, { h: p.hub, w: p.wait }) : p.stops === 0 ? t.next : p.stops === 1 ? t.stop : fill(t.stops, { n: p.stops }));
-        return '<div class="trip-row"><b>' + (tomorrow ? esc(t.tomorrow) + ' · ' : '') + MB.hhmm(p.dep) + ' → ' + MB.hhmm(p.arr) +
+        return '<div class="trip-row"><b>' + (tomorrow ? esc(t.tomorrow) + ' · ' : '') + MB.shown(p.serviceDay, p.dep) + ' → ' + MB.shown(p.serviceDay, p.arr) +
           ' · ' + (p.arr - p.dep) + ' ' + t.min + '</b><div class="trip-meta">' + meta + '</div></div>';
       });
       out.innerHTML = '<div class="board">' + (rows.join('') || '<p class="trip-none">' + esc(t.nojourney) + '</p>') + '</div>';
       caption('plan', { o: o, d: d });
-      said = o + ' → ' + d + ': ' + (plans.length ? MB.hhmm(plans[0].dep) + ' → ' + MB.hhmm(plans[0].arr) : t.nojourney);
+      said = o + ' → ' + d + ': ' + (plans.length ? MB.shown(plans[0].serviceDay, plans[0].dep) + ' → ' + MB.shown(plans[0].serviceDay, plans[0].arr) : t.nojourney);
     } else {
       var gs = MB.boards(net, o, now);
       out.innerHTML = gs.map(function (g) {
@@ -939,9 +970,9 @@ var MB = (function () {
         if (n.ended) {
           // After the last bus but before 04:00 the next service day is this calendar day.
           return '<div class="board"><div class="bd-label">' + label + '</div><div class="bd-none">' + esc(t.none) + '</div>' +
-            '<div class="bd-first">' + esc(fill(calDay(g, n.min) === now.day ? t.firstToday : t.firstTomorrow, { t: MB.hhmm(n.min), l: t.lines[n.line] || n.line })) + '</div></div>';
+            '<div class="bd-first">' + esc(fill(calDay(g, n.min) === now.day ? t.firstToday : t.firstTomorrow, { t: MB.shown(g.serviceDay, n.min), l: t.lines[n.line] || n.line })) + '</div></div>';
         }
-        return '<div class="board"><div class="bd-head">' + tag(n.line) + '<span class="bd-dest">' + esc(n.to) + '</span><span class="bd-time">' + MB.hhmm(n.min) + '</span></div>' +
+        return '<div class="board"><div class="bd-head">' + tag(n.line) + '<span class="bd-dest">' + esc(n.to) + '</span><span class="bd-time">' + MB.shown(g.serviceDay, n.min) + '</span></div>' +
           '<div class="bd-label"><span>' + label + '</span></div><div class="bd-num">' + wait(g, n.min, now) + '</div>' +
           (g.deps.length > 1 ? '<div class="bd-follow"><span class="bd-label">' + esc(t.following) + '</span>' + g.deps.slice(1).map(function (f) {
             return '<div class="bd-frow"><b>' + wait(g, f.min, now) + '</b><span class="r">' + tag(f.line, true) + esc(f.to) + '</span></div>';
@@ -949,7 +980,7 @@ var MB = (function () {
       }).join('');
       said = gs.map(function (g) {
         var n = g.deps[0];
-        return t.dir + g.termini.join(' · ') + ': ' + (!n || n.ended ? t.ended : (t.lines[n.line] || n.line) + ', ' + n.to + ', ' + MB.hhmm(n.min));
+        return t.dir + g.termini.join(' · ') + ': ' + (!n || n.ended ? t.ended : (t.lines[n.line] || n.line) + ', ' + n.to + ', ' + MB.shown(g.serviceDay, n.min));
       }).join('. ');
       caption('live', { s: o });
     }
