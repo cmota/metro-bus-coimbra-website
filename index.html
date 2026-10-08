@@ -950,7 +950,7 @@ var MB = (function () {
     if (!force && key === lastKey) return;
     lastKey = key;
     var t = T[lang()], o = from.value, d = to.value, said = '';
-    if (d && d !== o) {
+    if (d) { // the same station both ways goes to the planner too, which answers "no journey" as the app does
       var plans = MB.plan(net, o, d, now, 3);
       var rows = plans.map(function (p) {
         var tomorrow = isTomorrow(p, p.dep, now);
