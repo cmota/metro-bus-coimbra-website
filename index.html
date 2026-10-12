@@ -793,6 +793,28 @@ var MB = (function () {
     return (net.cache[key] = { trips: trips, at: at });
   }
 
+  /** A line's direction on one side of a station's board, as the app's ScheduleService.directionOn:
+   *  sides follow the road, so where Blue and Green share it by Coimbra B, Green turns to match. */
+  function directionOn(net, line, station, centre) {
+    function next(l, d) {
+      var here = l.stations.indexOf(station), from = l.stations.indexOf(d.origin), to = l.stations.indexOf(d.terminus);
+      if (here < 0 || from < 0 || to < 0 || here === to) return null;
+      return l.stations[from < to ? here + 1 : here - 1] || null;
+    }
+    var ref = net.doc.lines.filter(function (l) { return l.stations.indexOf(station) >= 0; })
+      .sort(function (a, b) { return b.stations.length - a.stations.length || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0); })[0];
+    var implied = [];
+    if (ref && ref.id !== line.id) line.directions.forEach(function (mine) {
+      var n = next(line, mine);
+      if (n) ref.directions.forEach(function (r) {
+        var v = !!r.towards_centre !== !!mine.towards_centre;
+        if (next(ref, r) === n && implied.indexOf(v) < 0) implied.push(v);
+      });
+    });
+    var swapped = implied.length === 1 && implied[0];
+    return line.directions.filter(function (x) { return !!x.towards_centre === (centre !== swapped); })[0];
+  }
+
   /** The two boards, as on the app's home: each line's next departures today, merged by time.
    *  A line whose last bus has gone offers its first of the next service day instead (ended). */
   function boards(net, station, now) {
@@ -812,7 +834,7 @@ var MB = (function () {
       var deps = [], termini = [];
       net.doc.lines.forEach(function (l) {
         if (l.stations.indexOf(station) < 0) return;
-        var d = l.directions.filter(function (x) { return !!x.towards_centre === centre; })[0];
+        var d = directionOn(net, l, station, centre);
         if (!d || d.terminus === station) return;
         if (termini.indexOf(d.terminus) < 0) termini.push(d.terminus);
         var today = calls(l.id, d.id, 0);
